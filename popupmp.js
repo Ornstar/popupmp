@@ -429,7 +429,7 @@
 
           <div class="sG">
             <div class="sK">
-              <span class="sKTitle">BONUS NEW MEMBER</span>
+              <span class="sKTitle">BONUS NEW MEMBER 10%+100%</span>
               <b>10%+100%</b>
               <a class="sBtn" href="${LIVECHAT_URL}" target="_blank" rel="noopener">Livechat</a>
             </div>
