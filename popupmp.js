@@ -430,24 +430,24 @@
           <div class="sG">
             <div class="sK">
               <span class="sKTitle">NEW MEMBER</span>
-              <b>100%</b>
+              <b>10%+100%</b>
               <a class="sBtn" href="${LIVECHAT_URL}" target="_blank" rel="noopener">Livechat</a>
             </div>
 
             <div class="sK">
-              <span class="sKTitle">TURBO REDEPOSIT</span>
-              <b>25%</b>
+              <span class="sKTitle">BONUS DEPOSIT COMEBACK</span>
+              <b>30%</b>
               <a class="sBtn" href="${LIVECHAT_URL}" target="_blank" rel="noopener">Livechat</a>
             </div>
 
             <div class="sK">
-              <span class="sKTitle">SPORTSBOOK WIN-LOSE</span>
-              <b>AKTIF</b>
+              <span class="sKTitle">BONUS APK FANTASTIS</span>
+              <b>50%</b>
               <a class="sBtn" href="${TELEGRAM_URL}" target="_blank" rel="noopener">Telegram</a>
             </div>
 
             <div class="sK">
-              <span class="sKTitle">POINT LOYALTY</span>
+              <span class="sKTitle">POKER POINT MANIA</span>
               <b>AKTIF</b>
               <a class="sBtn" href="${TELEGRAM_URL}" target="_blank" rel="noopener">Telegram</a>
             </div>
