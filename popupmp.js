@@ -3,7 +3,7 @@
 
   const LIVECHAT_URL = "https://speed-ly.com/LIVECHAT_MAUPOKER";
   const TELEGRAM_URL = "https://speed-ly.com/TELEGRAM_OFFICIAL_MAUPOKER";
-  const BANNER_URL = "http://plcl.me/images/ayPpo.jpg";
+  const BANNER_URL = "http://plcl.me/images/QjHPE.jpg";
 
   const STORAGE_KEY = "popup_kw_seen_v1";
   const STYLE_ID = "popupkw-style";
