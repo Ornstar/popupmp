@@ -1,512 +1,402 @@
 (() => {
-  "use strict";
+"use strict";
 
-  const LIVECHAT_URL = "https://speed-ly.com/LIVECHAT_MAUPOKER";
-  const TELEGRAM_URL = "https://speed-ly.com/TELEGRAM_OFFICIAL_MAUPOKER";
-  const BANNER_URL = "http://plcl.me/images/QjHPE.jpg";
+/* ================= CONFIG ================= */
+const BTN1_URL = "https://speed-ly.com/WHATSAPP_OFFICIAL_MAUPOKER";
+const BTN2_URL = "https://speed-ly.com/VPN-MP";
+const BTN3_URL = "https://speed-ly.com/MAUPOKER_GROUP";
+const BTN4_URL = "https://speed-ly.com/APK_WEB_MAUPOKER";
 
-  const STORAGE_KEY = "popup_kw_seen_v1";
-  const STYLE_ID = "popupkw-style";
-  const OVERLAY_ID = "popupkw-overlay";
-  const CLOSE_BTN_ID = "popupkw-close-btn";
+const SLIDES = [
+  "http://plcl.me/images/2jEZs.jpg",
+  "http://plcl.me/images/3xzU2.jpg"
+];
 
-  function injectStyle() {
-    if (document.getElementById(STYLE_ID)) return;
+/* ================= STYLE ================= */
+function injectStyle() {
+  if (document.getElementById("popup_pasjackpot")) return;
 
-    const style = document.createElement("style");
-    style.id = STYLE_ID;
-    style.textContent = `
-      :root{
-        --bg:#140c06;
-        --card1:#1a0f08;
-        --card2:#2a170d;
-        --card3:#120904;
+  const style = document.createElement("style");
+  style.id = "popup_pasjackpot";
 
-        --brown:#c68a3b;
-        --brown-2:#a86520;
-        --brown-3:#6f3f12;
-        --brown-dark:#3f2108;
-        --brown-soft:#f5d7a4;
+  style.textContent = `
 
-        --gold:#ffd78a;
-        --gold-2:#ffbf4d;
-        --gold-3:#d58a1f;
+    @keyframes shineMove {
+      0%   { left: -120% }
+      100% { left:  120% }
+    }
+    @keyframes hotPulse {
+      0%,100% { transform: scale(1) }
+      50%      { transform: scale(1.22) }
+    }
 
-        --text:#fff4e3;
-        --text-soft:#f1dbc0;
+    /* Masuk */
+    @keyframes popupEnter {
+      0%   { opacity: 0; transform: translateY(28px) scale(0.8); }
+      60%  { opacity: 1; transform: translateY(-5px)  scale(1.03); }
+      80%  {             transform: translateY(2px)   scale(0.98); }
+      100% { opacity: 1; transform: translateY(0)     scale(1);    }
+    }
+
+    /*
+      Float — HANYA translateY dalam px bulat.
+      Gerakan kecil (±6px) agar masuk dalam padding buffer 20px
+      sehingga tepi GPU layer TIDAK pernah bergerak.
+    */
+    @keyframes popupFloat {
+      0%,100% { transform: translateY(0px); }
+      30%      { transform: translateY(-6px); }
+      70%      { transform: translateY(6px);  }
+    }
+
+    /* Keluar */
+    @keyframes popupExit {
+      0%   { opacity: 1; transform: translateY(0)    scale(1);    }
+      100% { opacity: 0; transform: translateY(16px) scale(0.82); }
+    }
+
+    @keyframes bgShimmer {
+      0%,100% { background-position: 0% 50%; }
+      50%      { background-position: 100% 50%; }
+    }
+    @keyframes borderGlow {
+      0%,100% {
+        box-shadow: 0 0 18px 2px rgba(200,148,12,0.45),
+                    0 24px 60px rgba(0,0,0,0.85);
       }
-
-      @keyframes popupkw-cardFloat{
-        0%,100%{transform:translateY(0)}
-        50%{transform:translateY(-6px)}
+      50% {
+        box-shadow: 0 0 38px 8px rgba(232,185,40,0.82),
+                    0 24px 60px rgba(0,0,0,0.85);
       }
-
-      @keyframes popupkw-borderGlow{
-        0%,100%{
-          box-shadow:
-            0 24px 60px rgba(0,0,0,.42),
-            0 0 0 1px rgba(255,255,255,.04) inset,
-            0 0 24px rgba(214,146,43,.10)
-        }
-        50%{
-          box-shadow:
-            0 28px 70px rgba(0,0,0,.50),
-            0 0 0 1px rgba(255,255,255,.06) inset,
-            0 0 42px rgba(214,146,43,.24)
-        }
-      }
-
-      @keyframes popupkw-shineSweep{
-        0%{transform:translateX(-160%) skewX(-24deg)}
-        100%{transform:translateX(220%) skewX(-24deg)}
-      }
-
-      @keyframes popupkw-pulseSoft{
-        0%,100%{
-          transform:scale(1);
-          box-shadow:0 8px 20px rgba(0,0,0,.30), 0 0 16px rgba(255,191,77,.14)
-        }
-        50%{
-          transform:scale(1.03);
-          box-shadow:0 10px 24px rgba(0,0,0,.34), 0 0 24px rgba(255,191,77,.24)
-        }
-      }
-
-      @keyframes popupkw-pulseClose{
-        0%,100%{
-          transform:scale(1);
-          box-shadow:
-            0 12px 28px rgba(0,0,0,.34),
-            0 0 0 2px rgba(255,219,158,.16) inset,
-            0 0 20px rgba(255,200,110,.18);
-        }
-        50%{
-          transform:scale(1.03);
-          box-shadow:
-            0 16px 34px rgba(0,0,0,.40),
-            0 0 0 2px rgba(255,224,170,.22) inset,
-            0 0 30px rgba(255,200,110,.28);
-        }
-      }
-
-      @keyframes popupkw-mistMove{
-        0%{transform:translate3d(-8px,6px,0) scale(1.02); opacity:.24}
-        50%{transform:translate3d(12px,-8px,0) scale(1.08); opacity:.46}
-        100%{transform:translate3d(-8px,6px,0) scale(1.02); opacity:.24}
-      }
-
-      @keyframes popupkw-sparkleMove{
-        0%{transform:translateY(0); opacity:.16}
-        50%{transform:translateY(-8px); opacity:.34}
-        100%{transform:translateY(-16px); opacity:.12}
-      }
-
-      @keyframes popupkw-popIn{
-        0%{
-          opacity:0;
-          transform:translateY(18px) scale(.92) rotate(-2deg);
-          filter:blur(2px);
-        }
-        55%{
-          opacity:1;
-          transform:translateY(-4px) scale(1.02) rotate(.8deg);
-          filter:blur(0);
-        }
-        100%{
-          opacity:1;
-          transform:translateY(0) scale(1) rotate(0);
-          filter:blur(0);
-        }
-      }
-
-      #${OVERLAY_ID},
-      #${OVERLAY_ID} *{
-        box-sizing:border-box;
-      }
-
-      #${OVERLAY_ID}{
-        position:fixed;
-        top:50%;
-        left:50%;
-        transform:translate(-50%,-50%);
-        z-index:2147483647;
-        display:block;
-        width:auto;
-        height:auto;
-        padding:0;
-        margin:0;
-        background:transparent !important;
-        overflow:visible;
-        pointer-events:none;
-        font-family:Arial,sans-serif;
-      }
-
-      #${OVERLAY_ID}::before,
-      #${OVERLAY_ID}::after{
-        display:none !important;
-        content:none !important;
-      }
-
-      #${OVERLAY_ID} .sW{
-        width:min(380px, calc(100vw - 24px));
-        border-radius:22px;
-        overflow:hidden;
-        position:relative;
-        z-index:1;
-        pointer-events:auto;
-        background:
-          radial-gradient(120% 90% at 50% -10%, rgba(255,191,77,.14), transparent 55%),
-          radial-gradient(90% 70% at 0% 100%, rgba(198,138,59,.12), transparent 60%),
-          linear-gradient(180deg,var(--card1),var(--card2),var(--card3));
-        border:1px solid rgba(214,146,43,.72);
-        color:var(--text);
-        animation:
-          popupkw-popIn .75s cubic-bezier(.22,.85,.22,1),
-          popupkw-cardFloat 4.8s ease-in-out .75s infinite,
-          popupkw-borderGlow 3.8s ease-in-out infinite;
-      }
-
-      #${OVERLAY_ID} .sW::before{
-        content:"";
-        position:absolute;
-        inset:8px;
-        border-radius:16px;
-        border:1px solid rgba(255,255,255,.05);
-        pointer-events:none;
-      }
-
-      #${OVERLAY_ID} .sW::after{
-        content:"";
-        position:absolute;
-        top:-35%;
-        left:-40%;
-        width:55%;
-        height:170%;
-        background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,222,170,.14), rgba(255,255,255,0));
-        transform:skewX(-24deg);
-        animation:popupkw-shineSweep 5.2s linear infinite;
-        pointer-events:none;
-      }
-
-      #${OVERLAY_ID} .sIWrap{
-        position:relative;
-        overflow:hidden;
-      }
-
-      #${OVERLAY_ID} .sIWrap::after{
-        content:"";
-        position:absolute;
-        inset:auto 0 0 0;
-        height:80px;
-        background:linear-gradient(to top, rgba(18,9,4,.88), transparent);
-        pointer-events:none;
-      }
-
-      #${OVERLAY_ID} .sI{
-        width:100%;
-        display:block;
-      }
-
-      #${OVERLAY_ID} .sC{
-        position:relative;
-        padding:14px;
-        overflow:hidden;
-      }
-
-      #${OVERLAY_ID} .sC::before{
-        content:"";
-        position:absolute;
-        inset:-70px;
-        background:
-          radial-gradient(380px 220px at 15% 28%, rgba(255,225,180,.08), transparent 72%),
-          radial-gradient(420px 260px at 85% 22%, rgba(230,180,120,.06), transparent 72%),
-          radial-gradient(460px 300px at 55% 82%, rgba(255,214,150,.05), transparent 74%);
-        filter:blur(16px);
-        mix-blend-mode:screen;
-        opacity:.68;
-        pointer-events:none;
-        animation:popupkw-mistMove 8s ease-in-out infinite;
-      }
-
-      #${OVERLAY_ID} .sC::after{
-        content:"";
-        position:absolute;
-        inset:-24px;
-        background:
-          radial-gradient(circle at 10% 22%, rgba(255,235,205,.30) 0 1.2px, transparent 2.7px),
-          radial-gradient(circle at 25% 66%, rgba(255,220,180,.18) 0 1px, transparent 2.4px),
-          radial-gradient(circle at 44% 30%, rgba(255,230,190,.22) 0 1px, transparent 2.4px),
-          radial-gradient(circle at 61% 74%, rgba(255,220,180,.14) 0 1px, transparent 2.4px),
-          radial-gradient(circle at 78% 44%, rgba(255,235,205,.20) 0 1.1px, transparent 2.5px),
-          radial-gradient(circle at 92% 20%, rgba(255,220,180,.16) 0 1px, transparent 2.4px);
-        opacity:.26;
-        pointer-events:none;
-        animation:popupkw-sparkleMove 5.2s ease-in-out infinite;
-      }
-
-      #${OVERLAY_ID} .sC > *{
-        position:relative;
-        z-index:1;
-      }
-
-      #${OVERLAY_ID} .sImlek{
-        text-align:center;
-        padding:8px 12px;
-        border-radius:999px;
-        background:linear-gradient(180deg, #f0bf76 0%, #b9782f 58%, #5c300e 100%);
-        color:#fff7eb;
-        font-weight:800;
-        font-size:11px;
-        letter-spacing:.3px;
-        margin-bottom:10px;
-        border:1px solid rgba(255,220,170,.48);
+    }
+    @keyframes btnFloat {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-3px); }
+    }
+    @keyframes btnGlowPulse {
+      0%,100% {
         box-shadow:
-          0 10px 24px rgba(0,0,0,.26),
-          0 0 18px rgba(214,146,43,.14);
+          inset 0 2px 5px rgba(255,210,100,0.22),
+          inset 0 -3px 7px rgba(0,0,0,0.7),
+          0 0 10px rgba(200,148,12,0.3);
       }
-
-      #${OVERLAY_ID} .sSub{
-        text-align:center;
-        font-size:10.5px;
-        color:var(--text-soft);
-        line-height:1.45;
-        margin-bottom:12px;
-        letter-spacing:.2px;
-      }
-
-      #${OVERLAY_ID} .sG{
-        display:grid;
-        grid-template-columns:1fr 1fr;
-        gap:10px;
-      }
-
-      #${OVERLAY_ID} .sK{
-        position:relative;
-        padding:12px 10px;
-        border-radius:14px;
-        text-align:center;
-        background:
-          radial-gradient(130% 100% at 50% -20%, rgba(255,255,255,.08), transparent 55%),
-          linear-gradient(180deg, rgba(94,51,18,.76), rgba(28,14,6,.92));
-        border:1px solid rgba(214,146,43,.24);
-        box-shadow:0 10px 22px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.04);
-      }
-
-      #${OVERLAY_ID} .sKTitle{
-        display:block;
-        font-size:10px;
-        font-weight:800;
-        letter-spacing:.45px;
-        color:#fff1df;
-      }
-
-      #${OVERLAY_ID} .sK b{
-        display:block;
-        margin:5px 0 8px;
-        font-size:14px;
-        color:var(--gold);
-        text-shadow:0 0 12px rgba(255,191,77,.18);
-      }
-
-      #${OVERLAY_ID} .sBtn,
-      #${OVERLAY_ID} .sClose{
-        position:relative;
-        overflow:hidden;
-        isolation:isolate;
-      }
-
-      #${OVERLAY_ID} .sBtn::before,
-      #${OVERLAY_ID} .sClose::before{
-        content:"";
-        position:absolute;
-        top:-55%;
-        left:-80%;
-        width:72%;
-        height:230%;
-        border-radius:999px;
-        background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,237,205,.88), rgba(255,255,255,0));
-        transform:skewX(-24deg);
-        opacity:.9;
-        pointer-events:none;
-        animation:popupkw-shineSweep 2.4s linear infinite;
-      }
-
-      #${OVERLAY_ID} .sBtn{
-        display:block;
-        margin-top:6px;
-        padding:8px 10px;
-        border-radius:999px;
-        background:
-          radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.24), transparent 42%),
-          linear-gradient(180deg, #f2c985 0%, #c68739 58%, #6f4315 100%);
-        color:#fffaf1;
-        text-decoration:none;
-        text-align:center;
-        font-size:10.5px;
-        font-weight:800;
-        border:1px solid rgba(255,223,170,.72);
-        box-shadow:0 8px 20px rgba(0,0,0,.30), 0 0 16px rgba(214,146,43,.16);
-        animation:popupkw-pulseSoft 2.2s ease-in-out infinite;
-      }
-
-      #${OVERLAY_ID} .sFooter{
-        margin-top:10px;
-        text-align:center;
-        font-size:10px;
-        color:#f2dfc5;
-        opacity:.82;
-      }
-
-      #${OVERLAY_ID} .sCloseWrap{
-        display:flex;
-        justify-content:center;
-      }
-
-      #${OVERLAY_ID} .sClose{
-        display:inline-flex;
-        align-items:center;
-        justify-content:center;
-        min-width:230px;
-        margin-top:12px;
-        padding:12px 20px;
-        text-align:center;
-        background:
-          radial-gradient(circle at 50% 0%, rgba(255,255,255,.30), transparent 55%),
-          linear-gradient(180deg, #fff0ca 0%, #f2c375 35%, #b7772d 70%, #6b3d12 100%);
-        border-radius:14px;
-        cursor:pointer;
-        font-size:12px;
-        font-weight:900;
-        letter-spacing:.4px;
-        color:#2d1606;
-        text-shadow:0 1px 0 rgba(255,255,255,.45);
-        border:2px solid #ffd58c;
+      50% {
         box-shadow:
-          0 14px 30px rgba(0,0,0,.34),
-          0 0 0 2px rgba(255,210,120,.14) inset,
-          0 0 24px rgba(255,191,77,.18);
-        animation:popupkw-pulseClose 2.2s ease-in-out infinite;
-        appearance:none;
-        -webkit-appearance:none;
+          inset 0 2px 5px rgba(255,210,100,0.38),
+          inset 0 -3px 7px rgba(0,0,0,0.7),
+          0 0 24px rgba(232,185,40,0.75),
+          0 0 44px rgba(200,148,12,0.28);
       }
+    }
+    @keyframes btnBgShift {
+      0%,100% { background-position: 0% 50%; }
+      50%      { background-position: 100% 50%; }
+    }
+    @keyframes btnBounceIn {
+      0%   { opacity: 0; transform: translateY(14px) scale(0.88); }
+      70%  { opacity: 1; transform: translateY(-2px) scale(1.02); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
 
-      @media (max-width:420px){
-        #${OVERLAY_ID} .sW{ width:min(340px, calc(100vw - 16px)); }
-        #${OVERLAY_ID} .sC{ padding:11px; }
-        #${OVERLAY_ID} .sG{ gap:8px; }
-        #${OVERLAY_ID} .sK{ padding:10px 8px; }
-        #${OVERLAY_ID} .sK b{ font-size:13px; }
-        #${OVERLAY_ID} .sBtn{ font-size:10px; padding:8px; }
-        #${OVERLAY_ID} .sClose{ min-width:100%; font-size:11px; padding:11px 14px; }
-      }
+    /*
+      ============================================================
+      LAYER 1 — #popup_positioner
+        - Posisi center (transform tetap, tidak dianimasikan)
+        - padding: 20px → ini "bantalan" GPU layer
+          Gerakan floater terjadi di DALAM ruang ini,
+          sehingga tepi layer tidak pernah berpindah → no artifact
+        - will-change: transform → alokasikan layer GPU sendiri
+      ============================================================
+    */
+    #popup_positioner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      /* margin negatif untuk kompensasi padding tanpa menggeser posisi */
+      transform: translate(-50%, -50%);
+      z-index: 999999;
+      padding: 20px;
+      /* Layer GPU sendiri, tidak pernah berubah */
+      will-change: transform;
+      /* Paksa GPU compositing & hilangkan sub-pixel artifact */
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      perspective: 1000px;
+      -webkit-perspective: 1000px;
+    }
 
-      @media (prefers-reduced-motion: reduce){
-        #${OVERLAY_ID} .sW,
-        #${OVERLAY_ID} .sW::after,
-        #${OVERLAY_ID} .sC::before,
-        #${OVERLAY_ID} .sC::after,
-        #${OVERLAY_ID} .sBtn,
-        #${OVERLAY_ID} .sBtn::before,
-        #${OVERLAY_ID} .sClose,
-        #${OVERLAY_ID} .sClose::before{
-          animation:none !important;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-  }
+    /*
+      LAYER 2 — .popup-floater
+        - Bergerak naik-turun di dalam ruang padding layer 1
+        - isolation: isolate → stacking context sendiri
+        - backface-visibility: hidden → anti-flicker
+    */
+    #popup_positioner .popup-floater {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      will-change: transform;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      isolation: isolate;
+      animation: popupEnter 0.6s cubic-bezier(0.34, 1.42, 0.64, 1) forwards;
+    }
 
-  function buildPopupHTML() {
-    return `
-      <div class="sW">
-        <div class="sIWrap">
-          <img class="sI" src="${BANNER_URL}" alt="Banner Popup">
+    #popup_positioner .popup-floater.floating {
+      animation: popupFloat 4s ease-in-out infinite !important;
+    }
+
+    #popup_positioner .popup-floater.closing {
+      animation: popupExit 0.3s ease-in forwards !important;
+    }
+
+    /* ===== CARD ===== */
+    #popup_positioner .card {
+      width: 360px;
+      max-width: 92vw;
+      background: linear-gradient(145deg, #1c0e00, #0d0500, #251100, #160800);
+      background-size: 300% 300%;
+      border-radius: 22px !important;
+      overflow: hidden;
+      position: relative;
+      border: 1.5px solid #c8900a;
+      /* Filter drop-shadow menggantikan box-shadow untuk GPU compositing lebih bersih */
+      filter: drop-shadow(0 0 18px rgba(200,148,12,0.45))
+              drop-shadow(0 20px 40px rgba(0,0,0,0.85));
+      animation:
+        bgShimmer  8s   ease         infinite,
+        borderGlow 2.8s ease-in-out  infinite;
+    }
+
+    /* ===== CLOSE ===== */
+    #popup_positioner .closeWrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    #popup_positioner .closeX {
+      width: 54px;
+      height: 54px;
+      border-radius: 50% !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+      color: #fff;
+      background: linear-gradient(170deg, #ff9090 0%, #ff4444 30%, #dd0000 65%, #880000 100%);
+      box-shadow:
+        0 10px 28px rgba(0,0,0,0.85),
+        0 0 22px rgba(220,0,0,0.75),
+        inset 0 4px 8px rgba(255,255,255,0.45),
+        inset 0 -4px 8px rgba(0,0,0,0.55);
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease;
+    }
+
+    #popup_positioner .closeX::before {
+      content: "";
+      position: absolute;
+      top: -50%; left: -120%;
+      width: 100%; height: 200%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.85), transparent);
+      animation: shineMove 2.2s infinite;
+    }
+
+    #popup_positioner .closeX::after {
+      content: "";
+      position: absolute;
+      top: -15%; left: -5%;
+      width: 110%; height: 55%;
+      background: radial-gradient(circle, rgba(255,255,255,0.45), transparent 70%);
+    }
+
+    #popup_positioner .closeX:hover {
+      transform: scale(1.16);
+    }
+
+    /* ===== BANNER ===== */
+    #popup_positioner .banner {
+      aspect-ratio: 4/4;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    #popup_positioner .slides {
+      display: flex;
+      height: 100%;
+      transition: transform 0.6s cubic-bezier(0.77, 0, 0.18, 1);
+    }
+
+    #popup_positioner .slides img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    /* ===== DIVIDER ===== */
+    #popup_positioner .divider {
+      height: 1px;
+      margin: 0 16px;
+      background: linear-gradient(90deg, transparent, #c8900a, #e8b828, #c8900a, transparent);
+    }
+
+    /* ===== BUTTONS ===== */
+    #popup_positioner .buttons {
+      padding: 14px 16px 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    html body #popup_positioner .btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 44px;
+      border-radius: 40px !important;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #ffe9b0 !important;
+      text-decoration: none;
+      background: linear-gradient(
+        135deg,
+        #8c5500 0%, #5c3200 25%,
+        #7a4500 50%, #3d1e00 75%, #6a3a00 100%
+      ) !important;
+      background-size: 300% 300% !important;
+      border: 1px solid #c8900a !important;
+      cursor: pointer;
+      overflow: hidden;
+      animation:
+        btnFloat      3s   ease-in-out infinite,
+        btnGlowPulse  2.5s ease-in-out infinite,
+        btnBgShift    5s   ease         infinite,
+        btnBounceIn   0.5s ease         forwards;
+      transition: filter 0.15s ease;
+    }
+
+    html body #popup_positioner .buttons > .btn:nth-child(1)          { animation-delay: 0s,    0s,    0s,    0.25s; }
+    html body #popup_positioner .buttons > .btn:nth-child(2)          { animation-delay: 0.5s,  0.7s,  0.3s,  0.4s;  }
+    html body #popup_positioner .buttons > .btnWrap:nth-child(3) .btn { animation-delay: 0.25s, 0.4s,  0.15s, 0.35s; }
+    html body #popup_positioner .buttons > .btn:nth-child(4)          { animation-delay: 0.75s, 1.1s,  0.6s,  0.55s; }
+
+    html body #popup_positioner .btn:hover {
+      animation-play-state: paused !important;
+      transform: translateY(-4px) scale(1.04) !important;
+      box-shadow:
+        inset 0 2px 5px rgba(255,210,100,0.35),
+        inset 0 -3px 7px rgba(0,0,0,0.7),
+        0 0 28px rgba(232,185,40,0.8),
+        0 8px 20px rgba(0,0,0,0.5) !important;
+      filter: brightness(1.18);
+    }
+
+    html body #popup_positioner .btn:active {
+      transform: translateY(0) scale(0.97) !important;
+      filter: brightness(0.9);
+    }
+
+    html body #popup_positioner .btn * { border-radius: 40px !important; }
+
+    #popup_positioner .btn::before {
+      content: "";
+      position: absolute;
+      top: -50%; left: -120%;
+      width: 60%; height: 200%;
+      background: linear-gradient(120deg, transparent, rgba(255,225,130,0.8), transparent);
+      animation: shineMove 2.4s ease-in-out infinite;
+    }
+
+    /* ===== HOT BADGE ===== */
+    #popup_positioner .btnWrap { position: relative; }
+
+    #popup_positioner .hot {
+      position: absolute;
+      top: -10px; right: -6px;
+      background: linear-gradient(135deg, #ff4400, #cc1100);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 3px 7px;
+      border-radius: 6px !important;
+      border: 1px solid rgba(255,100,50,0.6);
+      z-index: 9999;
+      animation: hotPulse 1.1s ease-in-out infinite;
+      box-shadow: 0 0 8px rgba(255,60,0,0.6);
+    }
+
+  `;
+
+  document.head.appendChild(style);
+}
+
+/* ================= HTML ================= */
+function buildHTML() {
+  const slidesHTML = SLIDES.map(s => `<img src="${s}">`).join("");
+  return `
+    <div class="popup-floater">
+      <div class="card">
+        <div class="banner">
+          <div class="slides">${slidesHTML}</div>
         </div>
-
-        <div class="sC">
-          <div class="sImlek">Selamat Menyambut Bulan Suci RAMADHAN</div>
-          <div class="sSub">JOIN KOMUNITAS MAUPOKER PRIORITAS RASAKAN MANFAATNYA</div>
-
-          <div class="sG">
-            <div class="sK">
-              <span class="sKTitle">BONUS NEW MEMBER 10%+100%</span>
-              <b>KLAIM SEKARANG</b>
-              <a class="sBtn" href="${LIVECHAT_URL}" target="_blank" rel="noopener">Livechat</a>
-            </div>
-
-            <div class="sK">
-              <span class="sKTitle">BONUS DEPOSIT COMEBACK</span>
-              <b>30%</b>
-              <a class="sBtn" href="${LIVECHAT_URL}" target="_blank" rel="noopener">Livechat</a>
-            </div>
-
-            <div class="sK">
-              <span class="sKTitle">BONUS APK FANTASTIS</span>
-              <b>50%</b>
-              <a class="sBtn" href="${TELEGRAM_URL}" target="_blank" rel="noopener">Telegram</a>
-            </div>
-
-            <div class="sK">
-              <span class="sKTitle">POKER POINT MANIA</span>
-              <b>AKTIF</b>
-              <a class="sBtn" href="${TELEGRAM_URL}" target="_blank" rel="noopener">Telegram</a>
-            </div>
+        <div class="divider"></div>
+        <div class="buttons">
+          <a class="btn" href="${BTN1_URL}" target="_blank">HUBUNGI KAMI</a>
+          <a class="btn" href="${BTN2_URL}" target="_blank">LINK ANTI NAWALA</a>
+          <div class="btnWrap">
+            <span class="hot">🔥 HOT</span>
+            <a class="btn" href="${BTN3_URL}" target="_blank">AMBIL BONUS</a>
           </div>
-
-          <div class="sFooter">© MAUPOKER GROUP</div>
-
-          <div class="sCloseWrap">
-            <button type="button" class="sClose" id="${CLOSE_BTN_ID}">
-              KLIK DISINI UNTUK MENUTUP
-            </button>
-          </div>
+          <a class="btn" href="${BTN4_URL}" target="_blank">APK GRATIS</a>
         </div>
       </div>
-    `;
-  }
+      <div class="closeWrap">
+        <div class="closeX" id="closeBtn">✕</div>
+      </div>
+    </div>
+  `;
+}
 
-  function closePopup(markSeen = true) {
-    const overlay = document.getElementById(OVERLAY_ID);
-    if (overlay) overlay.remove();
+/* ================= INIT ================= */
+function init() {
+  injectStyle();
 
-    if (markSeen) {
-      try {
-        localStorage.setItem(STORAGE_KEY, "1");
-      } catch (_) {}
-    }
-  }
+  const positioner = document.createElement("div");
+  positioner.id = "popup_positioner";
+  positioner.innerHTML = buildHTML();
+  document.body.appendChild(positioner);
 
-  function showPopup() {
-    try {
-      if (localStorage.getItem(STORAGE_KEY)) return;
-    } catch (_) {}
+  const floater = positioner.querySelector(".popup-floater");
 
-    if (document.getElementById(OVERLAY_ID)) return;
+  setTimeout(() => {
+    if (positioner.parentNode) floater.classList.add("floating");
+  }, 650);
 
-    injectStyle();
+  const slides = positioner.querySelector(".slides");
+  let index = 0;
+  setInterval(() => {
+    index = (index + 1) % SLIDES.length;
+    slides.style.transform = `translateX(-${index * 100}%)`;
+  }, 3000);
 
-    const overlay = document.createElement("div");
-    overlay.id = OVERLAY_ID;
-    overlay.innerHTML = buildPopupHTML();
+  document.getElementById("closeBtn").onclick = () => {
+    floater.classList.remove("floating");
+    floater.classList.add("closing");
+    setTimeout(() => positioner.remove(), 300);
+  };
+}
 
-    document.body.appendChild(overlay);
+window.addEventListener("load", () => {
+  setTimeout(init, 800);
+});
 
-    const closeBtn = document.getElementById(CLOSE_BTN_ID);
-    if (closeBtn) {
-      closeBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        closePopup(true);
-      });
-    }
-  }
-
-  function init() {
-    setTimeout(showPopup, 1200);
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
 })();
