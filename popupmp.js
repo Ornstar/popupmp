@@ -8,7 +8,7 @@ const BTN3_URL = "https://speed-ly.com/MAUPOKER_GROUP";
 const BTN4_URL = "https://speed-ly.com/APK_WEB_MAUPOKER";
 
 const SLIDES = [
-  "http://plcl.me/images/wUhRY.jpg",
+  "http://plcl.me/images/Mk3qe.png",
   "http://plcl.me/images/3xzU2.jpg"
 ];
 
