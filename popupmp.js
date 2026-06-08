@@ -3,7 +3,7 @@
 
 /* ================= CONFIG ================= */
 const BTN1_URL = "https://speed-ly.com/WHATSAPP_OFFICIAL_MAUPOKER";
-const BTN2_URL = "https://speed-ly.com/VPN-MP";
+const BTN2_URL = "https://speed-ly.com/PengaduanMemberMauPoker";
 const BTN3_URL = "https://speed-ly.com/MAUPOKER_GROUP";
 const BTN4_URL = "https://speed-ly.com/APK_WEB_MAUPOKER";
 
@@ -351,7 +351,7 @@ function buildHTML() {
         <div class="divider"></div>
         <div class="buttons">
           <a class="btn" href="${BTN1_URL}" target="_blank">HUBUNGI KAMI</a>
-          <a class="btn" href="${BTN2_URL}" target="_blank">LINK ANTI NAWALA</a>
+          <a class="btn" href="${BTN2_URL}" target="_blank">PENGADUAN MEMBER</a>
           <div class="btnWrap">
             <span class="hot">🔥 HOT</span>
             <a class="btn" href="${BTN3_URL}" target="_blank">AMBIL BONUS</a>
