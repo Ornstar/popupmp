@@ -369,7 +369,8 @@ function buildHTML() {
 /* ================= INIT ================= */
 function init() {
 
-  if (localStorage.getItem("popup_closed") === "true") {
+  // Jika pernah ditutup jangan tampil lagi
+  if (localStorage.getItem("popup_closed") === "1") {
     return;
   }
 
@@ -405,7 +406,8 @@ function init() {
 
   document.getElementById("closeBtn").onclick = () => {
 
-    localStorage.setItem("popup_closed", "true");
+    // Simpan status sudah ditutup
+    localStorage.setItem("popup_closed", "1");
 
     floater.classList.remove("floating");
     floater.classList.add("closing");
@@ -415,6 +417,7 @@ function init() {
     }, 300);
   };
 }
+
 window.addEventListener("load", () => {
   setTimeout(init, 800);
 });
